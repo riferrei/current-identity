@@ -8,6 +8,7 @@ output "Schema Registry              " {
 
 }
 
+/*
 output "REST Proxy                   " {
 
   value = "${var.instance_count["rest_proxy"] >= 1
@@ -15,6 +16,7 @@ output "REST Proxy                   " {
            : "REST Proxy has been disabled"}"
 
 }
+*/
 
 output "Kafka Connect                " {
 
@@ -32,6 +34,7 @@ output "KSQL Server                  " {
 
 }
 
+/*
 output "Control Center               " {
 
   value = "${var.instance_count["control_center"] >= 1
@@ -39,6 +42,7 @@ output "Control Center               " {
            : "Control Center has been disabled"}"
 
 }
+*/
 
 output "Bastion Server IP Address    " {
 

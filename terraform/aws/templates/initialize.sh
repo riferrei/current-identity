@@ -1,7 +1,20 @@
 #!/bin/bash
 
-curl -X DELETE ${kafka_connect_url}/connectors/myTwitterSourceConnector
+###########################################
+########### Twitter Connector #############
+###########################################
+
+CONNECTOR_NAME=$(curl -X GET ${kafka_connect_url}/connectors/myTwitterSourceConnector | jq '.name')
+
+if [ -n "$CONNECTOR_NAME" ]; then
+   curl -X DELETE ${kafka_connect_url}/connectors/myTwitterSourceConnector
+fi
+
 curl -s -X POST -H 'Content-Type: application/json' --data @twitterConnector.json ${kafka_connect_url}/connectors
+
+###########################################
+############## KSQL Streams ###############
+###########################################
 
 ksql ${ksql_server_url} <<EOF
 
@@ -13,5 +26,25 @@ ksql ${ksql_server_url} <<EOF
   
 EOF
 
-curl -X DELETE ${kafka_connect_url}/connectors/myRedisSinkConnector
+###########################################
+############ Redis Connector ##############
+###########################################
+
+CONNECTOR_NAME=$(curl -X GET ${kafka_connect_url}/connectors/myRedisSinkConnector | jq '.name')
+
+if [ -n "$CONNECTOR_NAME" ]; then
+   curl -X DELETE ${kafka_connect_url}/connectors/myRedisSinkConnector
+fi
+
 curl -s -X POST -H 'Content-Type: application/json' --data @redisConnector.json ${kafka_connect_url}/connectors
+
+###########################################
+############### Serverless ################
+###########################################
+
+mvn clean -f "../../serverless/pom.xml"
+mvn compile -f "../../serverless/pom.xml"
+mvn install -f "../../serverless/pom.xml"
+
+cd ../../serverless
+sls deploy -v
