@@ -1,5 +1,6 @@
 #!/bin/bash
 
+curl -X DELETE ${kafka_connect_url}/connectors/myTwitterSourceConnector
 curl -s -X POST -H 'Content-Type: application/json' --data @twitterConnector.json ${kafka_connect_url}/connectors
 
 ksql ${ksql_server_url} <<EOF
@@ -12,4 +13,5 @@ ksql ${ksql_server_url} <<EOF
   
 EOF
 
+curl -X DELETE ${kafka_connect_url}/connectors/myRedisSinkConnector
 curl -s -X POST -H 'Content-Type: application/json' --data @redisConnector.json ${kafka_connect_url}/connectors

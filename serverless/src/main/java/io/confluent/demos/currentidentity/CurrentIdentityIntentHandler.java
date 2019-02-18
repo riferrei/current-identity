@@ -17,8 +17,8 @@ import java.util.Optional;
 public class CurrentIdentityIntentHandler implements RequestHandler {
 
     private static final String HERO_NAME_SLOT = "heroName";
-    private static final String REDIS_HOST_ENV = "REDIS_HOST";
-    private static final String REDIS_PORT_ENV = "REDIS_PORT";
+    private static final String REDIS_HOST = System.getenv("REDIS_HOST");
+    private static final String REDIS_PORT = System.getenv("REDIS_PORT");
 
     @Override
     public boolean canHandle(HandlerInput input) {
@@ -39,44 +39,86 @@ public class CurrentIdentityIntentHandler implements RequestHandler {
         String heroName = heroNameSlot.getValue();
         heroName = heroName.toUpperCase();
 
-        final String redisHost = System.getenv(REDIS_HOST_ENV);
-        final String redisPort = System.getenv(REDIS_PORT_ENV);
+        String currentIdentity = getCurrentIdentity(heroName);
+        String speechText = getSpeechText(heroName, currentIdentity);
+
+        return input.getResponseBuilder()
+            .withSpeech(speechText)
+            .build();
+
+    }
+
+    private static String getCurrentIdentity(String heroName) {
+
+        if (!jedis.isConnected()) {
+
+            jedis.connect();
+
+        }
 
         String currentIdentity = null;
 
-        try (Jedis jedis = new Jedis(redisHost, Integer.parseInt(redisPort))) {
+        if (jedis.exists(heroName)) {
 
-            if (jedis.exists(heroName)) {
+            currentIdentity = jedis.get(heroName);
 
-                currentIdentity = jedis.get(heroName);
+            if (currentIdentity != null) {
+
+                currentIdentity = currentIdentity.trim();
 
             }
 
-        } catch (Exception ex) {
-
-            currentIdentity = "Error: " + ex.getMessage();
-
         }
 
-        String speechText = null;
+        return currentIdentity;
+
+    }
+
+    private static String getSpeechText(String heroName, String currentIdentity) {
+
+        final StringBuilder speechText = new StringBuilder();
 
         if (currentIdentity != null) {
 
-            speechText = heroName + "'s current identity is " +
-                currentIdentity.trim();
+            speechText.append(heroName);
+            speechText.append("'s current identity is ");
+            speechText.append(currentIdentity);
+
+            return speechText.toString();
 
         } else {
 
-            speechText = "I could not find " + heroName +
-                "'s current identity. " +
-                "<amazon:effect name=\"whispered\">Sorry...</amazon:effect>";
+            speechText.append("I could not find ");
+            speechText.append(heroName);
+            speechText.append("'s current identity. ");
+            speechText.append("<amazon:effect name=\"whispered\">Sorry...</amazon:effect>");
+
+            return speechText.toString();
 
         }
 
-        return input.getResponseBuilder()
-                .withSpeech(speechText)
-                .withSimpleCard("CurrentIdentity", speechText)
-                .build();
+    }
+
+    private static Jedis jedis;
+
+    static {
+
+        jedis = new Jedis(REDIS_HOST, Integer.parseInt(REDIS_PORT));
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            public void run() {
+
+                if (jedis != null) {
+
+                    jedis.disconnect();
+                    jedis.close();
+
+                }
+
+            }
+
+        });
 
     }
 
