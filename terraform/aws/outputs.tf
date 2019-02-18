@@ -34,7 +34,6 @@ output "KSQL Server                  " {
 
 }
 
-/*
 output "Control Center               " {
 
   value = "${var.instance_count["control_center"] >= 1
@@ -42,7 +41,6 @@ output "Control Center               " {
            : "Control Center has been disabled"}"
 
 }
-*/
 
 output "Bastion Server IP Address    " {
 

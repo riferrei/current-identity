@@ -22,7 +22,7 @@ variable "instance_count" {
     "rest_proxy"       =  0
     "kafka_connect"    =  1
     "ksql_server"      =  1
-    "control_center"   =  0
+    "control_center"   =  1
     "bastion_server"   =  1
     "redis_server"     =  1
 
