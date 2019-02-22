@@ -24,33 +24,3 @@ resource "local_file" "serverless_configuration" {
   filename = "../../serverless/serverless.yml"
   
 }
-
-/*
-resource "null_resource" "serverless_deployment" {
-
-    provisioner "local-exec" {
-
-        command = "mvn clean -f '../../serverless/pom.xml'"
-        interpreter = ["bash", "-c"]
-        on_failure = "continue"
-
-    }
-
-    provisioner "local-exec" {
-
-        command = "mvn compile -f '../../serverless/pom.xml'"
-        interpreter = ["bash", "-c"]
-        on_failure = "continue"
-
-    }
-
-    provisioner "local-exec" {
-
-        command = "mvn install -f '../../serverless/pom.xml'"
-        interpreter = ["bash", "-c"]
-        on_failure = "continue"
-
-    }
-
-}
-*/
