@@ -8,16 +8,6 @@ output "Schema Registry              " {
 
 }
 
-/*
-output "REST Proxy                   " {
-
-  value = "${var.instance_count["rest_proxy"] >= 1
-           ? "${join(",", formatlist("http://%s", aws_alb.rest_proxy.*.dns_name))}"
-           : "REST Proxy has been disabled"}"
-
-}
-*/
-
 output "Kafka Connect                " {
 
   value = "${var.instance_count["kafka_connect"] >= 1
