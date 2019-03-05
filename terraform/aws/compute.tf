@@ -2,11 +2,6 @@
 ################ Key Pair #################
 ###########################################
 
-variable "key_name" {
-
-  default = "ccloud-tools"
-
-}
 resource "tls_private_key" "key_pair" {
 
   algorithm = "RSA"
@@ -15,7 +10,7 @@ resource "tls_private_key" "key_pair" {
 }
 resource "aws_key_pair" "generated_key" {
 
-  key_name   = "${var.key_name}"
+  key_name   = "${var.global_prefix}"
   public_key = "${tls_private_key.key_pair.public_key_openssh}"
 
 }
@@ -51,7 +46,7 @@ resource "aws_instance" "schema_registry" {
 
   tags {
 
-    Name = "schema-registry-${count.index}"
+    Name = "${var.global_prefix}-schema-registry-${count.index}"
 
   }
 
@@ -85,7 +80,7 @@ resource "aws_instance" "rest_proxy" {
 
   tags {
 
-    Name = "rest-proxy-${count.index}"
+    Name = "${var.global_prefix}-rest-proxy-${count.index}"
 
   }
 
@@ -119,7 +114,7 @@ resource "aws_instance" "kafka_connect" {
 
   tags {
 
-    Name = "kafka-connect-${count.index}"
+    Name = "${var.global_prefix}-kafka-connect-${count.index}"
 
   }
 
@@ -153,7 +148,7 @@ resource "aws_instance" "ksql_server" {
 
   tags {
 
-    Name = "ksql-server-${count.index}"
+    Name = "${var.global_prefix}-ksql-server-${count.index}"
 
   }
 
@@ -189,7 +184,7 @@ resource "aws_instance" "control_center" {
 
   tags {
 
-    Name = "control-center-${count.index}"
+    Name = "${var.global_prefix}-control-center-${count.index}"
 
   }
 
@@ -222,7 +217,7 @@ resource "aws_instance" "bastion_server" {
 
   tags {
 
-    Name = "bastion-server"
+    Name = "${var.global_prefix}-bastion-server"
 
   }
 
@@ -255,7 +250,7 @@ resource "aws_instance" "redis_server" {
 
   tags {
 
-    Name = "redis-server-${count.index}"
+    Name = "${var.global_prefix}-redis-server-${count.index}"
 
   }
 
@@ -267,7 +262,7 @@ resource "aws_instance" "redis_server" {
 
 resource "aws_alb_target_group" "schema_registry_target_group" {
 
-  name = "schema-registry-target-group"  
+  name = "${var.global_prefix}-sr-target-group"
   port = "8081"
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
@@ -300,14 +295,14 @@ resource "aws_alb" "schema_registry" {
 
   depends_on = ["aws_instance.schema_registry"]
 
-  name = "schema-registry"
+  name = "${var.global_prefix}-schema-registry"
   subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
   security_groups = ["${aws_security_group.load_balancer.id}"]
   internal = false
 
   tags {
 
-    Name = "schema-registry"
+    Name = "${var.global_prefix}-schema-registry"
 
   }
 
@@ -336,7 +331,7 @@ resource "aws_alb_target_group" "rest_proxy_target_group" {
 
   count = "${var.instance_count["rest_proxy"] >= 1 ? 1 : 0}"
 
-  name = "rest-proxy-target-group"  
+  name = "${var.global_prefix}-rp-target-group"
   port = "8082"
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
@@ -370,14 +365,14 @@ resource "aws_alb" "rest_proxy" {
   depends_on = ["aws_instance.rest_proxy"]
   count = "${var.instance_count["rest_proxy"] >= 1 ? 1 : 0}"
 
-  name = "rest-proxy"
+  name = "${var.global_prefix}y-rest-proxy"
   subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
   security_groups = ["${aws_security_group.load_balancer.id}"]
   internal = false
 
   tags {
 
-    Name = "rest-proxy"
+    Name = "${var.global_prefix}-rest-proxy"
 
   }
 
@@ -408,7 +403,7 @@ resource "aws_alb_target_group" "kafka_connect_target_group" {
 
   count = "${var.instance_count["kafka_connect"] >= 1 ? 1 : 0}"
 
-  name = "kafka-connect-target-group"
+  name = "${var.global_prefix}-kc-target-group"
   port = "8083"
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
@@ -442,14 +437,14 @@ resource "aws_alb" "kafka_connect" {
   depends_on = ["aws_instance.kafka_connect"]
   count = "${var.instance_count["kafka_connect"] >= 1 ? 1 : 0}"
 
-  name = "kafka-connect"
+  name = "${var.global_prefix}-kafka-connect"
   subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
   security_groups = ["${aws_security_group.load_balancer.id}"]
   internal = false
 
   tags {
 
-    Name = "kafka-connect"
+    Name = "${var.global_prefix}-kafka-connect"
 
   }
 
@@ -480,7 +475,7 @@ resource "aws_alb_target_group" "ksql_server_target_group" {
 
   count = "${var.instance_count["ksql_server"] >= 1 ? 1 : 0}"
 
-  name = "ksql-server-target-group"  
+  name = "${var.global_prefix}-ks-target-group"  
   port = "8088"
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
@@ -514,14 +509,14 @@ resource "aws_alb" "ksql_server" {
   depends_on = ["aws_instance.ksql_server"]
   count = "${var.instance_count["ksql_server"] >= 1 ? 1 : 0}"
 
-  name = "ksql-server"
+  name = "${var.global_prefix}-ksql-server"
   subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
   security_groups = ["${aws_security_group.load_balancer.id}"]
   internal = false
 
   tags {
 
-    Name = "ksql-server"
+    Name = "${var.global_prefix}-ksql-server"
 
   }
 
@@ -552,7 +547,7 @@ resource "aws_alb_target_group" "control_center_target_group" {
 
   count = "${var.instance_count["control_center"] >= 1 ? 1 : 0}"
 
-  name = "control-center-target-group"  
+  name = "${var.global_prefix}-cc-target-group"
   port = "9021"
   protocol = "HTTP"
   vpc_id = "${aws_vpc.default.id}"
@@ -586,14 +581,14 @@ resource "aws_alb" "control_center" {
   depends_on = ["aws_instance.control_center"]
   count = "${var.instance_count["control_center"] >= 1 ? 1 : 0}"
 
-  name = "control-center"
+  name = "${var.global_prefix}-control-center"
   subnets = ["${aws_subnet.public_subnet_1.id}", "${aws_subnet.public_subnet_2.id}"]
   security_groups = ["${aws_security_group.load_balancer.id}"]
   internal = false
 
   tags {
 
-    Name = "control-center"
+    Name = "${var.global_prefix}-control-center"
 
   }
 

@@ -28,6 +28,12 @@ variable "ccloud_secret_key" {}
 ################## Others #################
 ###########################################
 
+variable "global_prefix" {
+
+    default = "current-identity"
+    
+}
+
 variable "alexa_skill_id" {}
 
 variable "twitter_oauth_access_token" {}
