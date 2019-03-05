@@ -84,6 +84,7 @@ data "template_file" "kafka_connect_properties" {
     broker_list = "${var.ccloud_broker_list}"
     access_key = "${var.ccloud_access_key}"
     secret_key = "${var.ccloud_secret_key}"
+    global_prefix = "${var.global_prefix}"
     confluent_home_value = "${var.confluent_home_value}"
 
     schema_registry_url = "${join(",", formatlist("http://%s:%s",
